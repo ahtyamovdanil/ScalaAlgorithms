@@ -29,11 +29,10 @@ object BinaryTree {
             type Row = List[(String, Int)]
 
             // get values of the the current level and attach them to the values of the next level etc
-            def strip(list: Row, level: Int = 0): List[Row] = list match {
-                case _ if list.count(_._2 == level) == 0 => Nil
+            def strip(list: Row, level: Int = 0): List[Row] = level match {
+                case _ if list.count(x => (x._1!=" ") && (x._2==level)) == 0 => Nil
                 case _ => list.map {
-                    case (v, lev) if lev == level =>
-                        (v, lev)
+                    case (v, lev) if lev == level => (v, lev)
                     case (_, lev) => (" ", lev)
                 } :: strip(list, level + 1)
             }
