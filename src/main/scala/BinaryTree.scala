@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 object BinaryTree {
 
     def apply[A](elements: A*)(implicit n: Numeric[A]): Tree[A] = {
@@ -18,25 +20,25 @@ object BinaryTree {
         }
 
         override def toString: String = {
-
+            type Row = List[(String, Int)]
             // form List of (value, level)
-            def loop(nodeList: List[(String, Int)], node: Tree[A]): List[(String, Int)] = node match {
-                case EmptyTree(level) => List((" ", level))
+            def loop(nodeList: Row, node: Tree[A]): Row = node match {
+                case EmptyTree(level) => List(("-", level))
                 case NonEmptyTree(v, l, r, level) => loop(nodeList, l) ++ List((v.toString, level)) ++ loop(nodeList, r)
             }
 
             val list = loop(Nil, this)
-            type Row = List[(String, Int)]
+
 
             // get values of the the current level and attach them to the values of the next level etc
-            def strip(list: Row, level: Int = 0): List[Row] = level match {
-                case _ if list.count(x => (x._1!=" ") && (x._2==level)) == 0 => Nil
-                case _ => list.map {
+            @tailrec
+            def strip(list: Row, level: Int = 0, buffer: List[Row]=List.empty[Row]): List[Row] = level match {
+                case _ if list.count(x => (x._1 != " ") && (x._2 == level)) == 0 => buffer
+                case _ => strip(list, level + 1, buffer :+ list.map {
                     case (v, lev) if lev == level => (v, lev)
-                    case (_, lev) => (" ", lev)
-                } :: strip(list, level + 1)
+                    case (_, lev) => (" ", lev)}
+                )
             }
-
             strip(list).map(_.map(_._1).mkString(" ")).mkString("\n")
         }
     }
